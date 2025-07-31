@@ -1,13 +1,14 @@
 "use client";
 
-import { signup } from "@/actions/auth-actions";
+import { auth } from "@/actions/auth-actions";
 import Link from "next/link";
 import { useFormState } from "react-dom";
 
 export default function AuthForm({ mode }) {
-  const [formState, formAction] = useFormState(signup, {});
+  const [formState, formAction] = useFormState(auth, {});
   return (
-    <form id="auth-form" action={formAction}>
+    //preconfigure which data this function will have since the beginning
+    <form id="auth-form" action={formAction.bind(null, mode)}>
       <div>
         <img src="/images/auth-icon.jpg" alt="A lock icon" />
       </div>

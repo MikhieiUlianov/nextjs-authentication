@@ -1,11 +1,14 @@
-import { verifyAyth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+import { verifyAuth } from "@/lib/auth";
 import { getTrainings } from "@/lib/training";
-import { redirect } from "next/dist/server/api-utils";
 
 export default async function TrainingPage() {
-  const result = verifyAyth();
+  const result = await verifyAuth();
 
-  if (!result.user) return redirect("/");
+  if (!result.user) {
+    return redirect("/");
+  }
 
   const trainingSessions = getTrainings();
 

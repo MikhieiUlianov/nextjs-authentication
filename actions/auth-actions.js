@@ -2,25 +2,30 @@
 import { redirect } from "next/navigation";
 
 import { hashUserPassword, verifyPassword } from "@/lib/hash";
-import createUser, { getUserByEmail } from "@/lib/user";
-import { createAuthSession } from "@/lib/auth";
+import { createUser, getUserByEmail } from "@/lib/user";
+import { createAuthSession, destroySession } from "@/lib/auth";
 
 export async function signup(prevState, formData) {
   const email = formData.get("email");
   const password = formData.get("password");
+
   let errors = {};
 
   if (!email.includes("@")) {
     errors.email = "Please enter a valid email address.";
   }
-  if (!password.trim().length > 8) {
-    errors.email = "Password must be at least 8 characters long.";
+
+  if (password.trim().length < 8) {
+    errors.password = "Password must be at least 8 characters long.";
   }
 
-  if (Object.keys(errors).length > 0) return { errors };
+  if (Object.keys(errors).length > 0) {
+    return {
+      errors,
+    };
+  }
 
   const hashedPassword = hashUserPassword(password);
-
   try {
     const id = createUser(email, hashedPassword);
     await createAuthSession(id);
@@ -29,7 +34,8 @@ export async function signup(prevState, formData) {
     if (error.code === "SQLITE_CONSTRAINT_UNIQUE") {
       return {
         errors: {
-          email: "It seems like an account for the chosen email already exist",
+          email:
+            "It seems like an account for the chosen email already exists.",
         },
       };
     }
@@ -37,33 +43,42 @@ export async function signup(prevState, formData) {
   }
 }
 
-export async function login(prvState, formData) {
+export async function login(prevState, formData) {
   const email = formData.get("email");
   const password = formData.get("password");
 
-  const existingUser = getUserByEmail(email);
+  const existingUser = await getUserByEmail(email);
 
   if (!existingUser) {
     return {
       errors: {
-        email: "Invalid credentials was untered.",
+        email: "Could not authenticate user, please check your credentials.",
       },
     };
   }
+
   const isValidPassword = verifyPassword(existingUser.password, password);
-  if (!existinisValidPasswordgUser) {
+
+  if (!isValidPassword) {
     return {
       errors: {
-        password: "Invalid credentials was untered.",
+        password: "Could not authenticate user, please check your credentials.",
       },
     };
   }
+
   await createAuthSession(existingUser.id);
   redirect("/training");
 }
+
 export async function auth(mode, prevState, formData) {
   if (mode === "login") {
-    login(prevState, formData);
+    return login(prevState, formData);
   }
-  signup(prevState, formData);
+  return signup(prevState, formData);
+}
+
+export async function logout() {
+  await destroySession();
+  redirect("/");
 }

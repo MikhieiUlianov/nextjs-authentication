@@ -20,6 +20,7 @@ async function handler(req, res) {
       message:
         "Invalid input - password should also be at least 7 characters long.",
     });
+    client.close();
     return;
   }
 
@@ -29,6 +30,7 @@ async function handler(req, res) {
   const existingUser = await db.collection("users").findOne({ email: email });
   if (existingUser) {
     res.status(201).json({ message: "The email is already used" });
+    client.close();
     return;
   }
 
@@ -40,6 +42,7 @@ async function handler(req, res) {
   });
 
   res.status(201).json({ message: "Created user!" });
+  client.close();
 }
 
 export default handler;

@@ -4,7 +4,7 @@ import classes from "./user-profile.module.css";
 import { useEffect, useState } from "react";
 
 function UserProfile() {
-  const [isLoading, setIsLoading] = useState(true);
+  /*  const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     getSession().then((session) => {
       if (!session) {
@@ -17,7 +17,7 @@ function UserProfile() {
 
   if (isLoading) {
     return <p className={classes.profile}>Loading...</p>;
-  }
+  } */
   return (
     <section className={classes.profile}>
       <h1>Your User Profile</h1>

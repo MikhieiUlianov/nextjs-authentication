@@ -10,24 +10,24 @@ export default NextAuth({
       async authorize(credentials) {
         const client = await connectToDatabase();
         const usersCollection = client.db().collection("users");
-        const existUser = usersCollection.findOne({ email: credentials.email });
+        const user = usersCollection.findOne({ email: credentials.email });
 
-        if (!existUser) {
+        if (!user) {
           client.close();
           throw new Error("Account does not exist");
         }
 
         const isValid = await verifyPassword(
           credentials.password,
-          existUser.password
+          user.password
         );
 
         if (!isValid) {
           client.close();
           throw new Error("Password is not valid.");
         }
-        return { email: existUser.email };
         client.close();
+        return { email: user.email };
       },
     }),
   ],
